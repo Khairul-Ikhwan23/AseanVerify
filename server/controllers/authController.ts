@@ -6,34 +6,56 @@ import { sendVerificationEmail } from "../services/emailService";
 
 export const signup = async (req: any, res: any) => {
   try {
+    console.log('Signup request received');
     const userData = signupSchema.parse(req.body);
+    console.log('User data validated:', { email: userData.email, firstName: userData.firstName });
+    
     const existingUser = await storage.getUserByEmail(userData.email);
     if (existingUser) {
+      console.log('User already exists:', userData.email);
       return res.status(400).json({ message: "User already exists" });
     }
 
+    console.log('Creating user...');
     // Create user with emailVerified=false and verified=false
     const user = await storage.createUser({ ...userData, emailVerified: false, verified: false } as any);
+    console.log('User created:', user.id);
 
+    console.log('Creating verification token...');
     // Create verification token
     const raw = generateRawToken(32);
     const tokenHash = hashToken(raw);
     const expiresAt = computeExpiry(24);
     await storage.createEmailVerificationToken(user.id, tokenHash, expiresAt);
+    console.log('Verification token created');
 
+    // Send verification email (non-blocking - don't fail signup if email fails)
     const apiBase = process.env.SERVER_BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
     const link = `${apiBase}/api/auth/verify?token=${raw}`;
-    await sendVerificationEmail(user.email, link);
+    console.log('Sending verification email to:', user.email);
+    
+    // Send email asynchronously in background - don't wait for it
+    // Use setImmediate to ensure it runs after response is sent
+    setImmediate(() => {
+      sendVerificationEmail(user.email, link).catch((emailError) => {
+        console.error('Failed to send verification email (non-critical):', emailError);
+        // Email failure doesn't block signup - user can resend verification email
+      });
+    });
 
+    console.log('Signup successful for user:', user.id);
     return res.json({ message: "Account created. Please verify your email.", user: { id: user.id, email: user.email } });
   } catch (error) {
     console.error('Signup error:', error);
     if (error instanceof z.ZodError) {
+      console.error('Validation errors:', error.errors);
       return res.status(400).json({ message: "Invalid user data", errors: error.errors });
     }
     // Log full error for debugging
     const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
     console.error('Signup failed:', errorMessage);
+    console.error('Error stack:', errorStack);
     return res.status(500).json({ 
       message: "Failed to create account",
       error: process.env.NODE_ENV === 'development' ? errorMessage : undefined
