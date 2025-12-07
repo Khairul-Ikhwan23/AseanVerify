@@ -11,6 +11,7 @@
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:migrate-email-verified": "node scripts/migrate-email-verified.js",
     "setup": "node setup-env.js",
     "setup:db": "docker compose up -d",
     "test:db": "node setup-database.js",

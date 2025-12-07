@@ -12,6 +12,7 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(userId: string, updates: Partial<InsertUser>): Promise<User | undefined>;
+  updateUserEmailVerification(userId: string, emailVerified: boolean): Promise<User | undefined>;
   updateUserVerification(userId: string, verified: boolean): Promise<User | undefined>;
   deleteUser(userId: string): Promise<boolean>;
   getBusinessProfile(userId: string): Promise<BusinessProfile | undefined>;
@@ -74,9 +75,19 @@ export class PostgresStorage implements IStorage {
       password: insertUser.password ? 'Password provided' : 'No password'
     });
     
-    const result = await this.db.insert(users).values(insertUser).returning();
-    console.log('Storage: Created user result:', result[0]);
-    return result[0];
+    try {
+      const result = await this.db.insert(users).values(insertUser).returning();
+      console.log('Storage: Created user result:', result[0]);
+      return result[0];
+    } catch (error: any) {
+      console.error('Database insert error:', error);
+      // Check if it's a column error
+      if (error?.message?.includes('column') || error?.code === '42703') {
+        console.error('⚠️ Database schema mismatch! Missing column. Run: npm run db:push');
+        throw new Error('Database schema is out of date. Please run database migration.');
+      }
+      throw error;
+    }
   }
 
   async getBusinessProfile(userId: string): Promise<BusinessProfile | undefined> {
@@ -260,8 +271,21 @@ export class PostgresStorage implements IStorage {
     return result[0];
   }
 
+  async updateUserEmailVerification(userId: string, emailVerified: boolean): Promise<User | undefined> {
+    console.log('Storage: Updating user email verification:', userId, 'emailVerified:', emailVerified);
+    
+    const result = await this.db
+      .update(users)
+      .set({ emailVerified })
+      .where(eq(users.id, userId))
+      .returning();
+    
+    console.log('Storage: Updated user email verification result:', result[0]);
+    return result[0];
+  }
+
   async updateUserVerification(userId: string, verified: boolean): Promise<User | undefined> {
-    console.log('Storage: Updating user verification:', userId, 'verified:', verified);
+    console.log('Storage: Updating user admin verification:', userId, 'verified:', verified);
     
     const result = await this.db
       .update(users)
@@ -269,7 +293,7 @@ export class PostgresStorage implements IStorage {
       .where(eq(users.id, userId))
       .returning();
     
-    console.log('Storage: Updated user verification result:', result[0]);
+    console.log('Storage: Updated user admin verification result:', result[0]);
     return result[0];
   }
 

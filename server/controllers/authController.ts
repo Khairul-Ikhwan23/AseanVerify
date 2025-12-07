@@ -12,8 +12,8 @@ export const signup = async (req: any, res: any) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Create user with verified=false
-    const user = await storage.createUser({ ...userData, verified: false } as any);
+    // Create user with emailVerified=false and verified=false
+    const user = await storage.createUser({ ...userData, emailVerified: false, verified: false } as any);
 
     // Create verification token
     const raw = generateRawToken(32);
@@ -27,10 +27,17 @@ export const signup = async (req: any, res: any) => {
 
     return res.json({ message: "Account created. Please verify your email.", user: { id: user.id, email: user.email } });
   } catch (error) {
+    console.error('Signup error:', error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ message: "Invalid user data", errors: error.errors });
     }
-    return res.status(500).json({ message: "Failed to create account" });
+    // Log full error for debugging
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Signup failed:', errorMessage);
+    return res.status(500).json({ 
+      message: "Failed to create account",
+      error: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+    });
   }
 };
 
@@ -41,7 +48,7 @@ export const login = async (req: any, res: any) => {
     if (!user || user.password !== loginData.password) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-    if (!user.verified) {
+    if (!user.emailVerified) {
       return res.status(403).json({ message: "Please verify your email before logging in." });
     }
     return res.json({ user: { id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email } });
@@ -71,7 +78,8 @@ export const verifyEmail = async (req: any, res: any) => {
         .status(400)
         .send(`<!doctype html><html><body><h1>Verification expired</h1><p>Your token has expired.</p></body></html>`);
     }
-    await storage.updateUserVerification(token.userId, true);
+    // Update emailVerified (email verification), not verified (admin verification)
+    await storage.updateUserEmailVerification(token.userId, true);
     await storage.deleteEmailVerificationToken(token.id);
     const loginUrl = `${process.env.APP_BASE_URL || "http://localhost:5173"}/login`;
     return res
@@ -110,7 +118,7 @@ export const resendVerification = async (req: any, res: any) => {
     const email = (req.body?.email || "").toString();
     if (!email) return res.status(200).json({ message: "If the account exists, a verification email will be sent." });
     const user = await storage.getUserByEmail(email);
-    if (!user || user.verified) {
+    if (!user || user.emailVerified) {
       return res.status(200).json({ message: "If the account exists, a verification email will be sent." });
     }
     // Issue new token (do not disclose account state)

@@ -946,6 +946,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lastName: "User",
         email: "admin@example.com",
         password: "123",
+        emailVerified: true, // Admin email is pre-verified
         verified: true, // Admin is pre-verified
       });
 
