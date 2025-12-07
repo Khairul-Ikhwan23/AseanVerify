@@ -13,6 +13,7 @@ async function getTransport(): Promise<nodemailer.Transporter> {
 
   transportPromise = (async () => {
     if (hasSmtp) {
+      console.log('Using SMTP transport:', process.env.SMTP_HOST);
       cachedTransport = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
         port: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : 587,
@@ -21,13 +22,14 @@ async function getTransport(): Promise<nodemailer.Transporter> {
           user: process.env.SMTP_USER,
           pass: process.env.SMTP_PASS,
         },
-        connectionTimeout: 5000, // 5 second timeout
-        greetingTimeout: 5000,
+        connectionTimeout: 10000, // 10 second timeout (increased for Gmail)
+        greetingTimeout: 10000,
       });
       return cachedTransport;
     }
 
     // Dev/test fallback: Ethereal with timeout
+    console.log('No SMTP configured, attempting to use Ethereal test email service...');
     try {
       const testAccount = await Promise.race([
         nodemailer.createTestAccount(),
@@ -47,6 +49,7 @@ async function getTransport(): Promise<nodemailer.Transporter> {
         connectionTimeout: 5000,
         greetingTimeout: 5000,
       });
+      console.log('Ethereal transport created successfully');
       return cachedTransport;
     } catch (error) {
       console.error('Failed to create email transport:', error);
@@ -94,14 +97,18 @@ export async function sendVerificationEmail(email: string, verificationLink: str
       )
     ]);
 
-    // Log Ethereal preview URL in dev
+    // Log success
+    console.log('Verification email sent successfully to:', email);
+    
+    // Log Ethereal preview URL in dev (if using Ethereal)
     const previewUrl = nodemailer.getTestMessageUrl(info);
     if (previewUrl) {
-      console.log("Email preview:", previewUrl);
+      console.log("Email preview (Ethereal):", previewUrl);
     }
   } catch (error) {
     // Log error but don't throw - email failure shouldn't block signup
-    console.error('Email sending failed (non-critical):', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Email sending failed (non-critical):', errorMessage);
     // Don't re-throw - let caller handle gracefully
   }
 }
