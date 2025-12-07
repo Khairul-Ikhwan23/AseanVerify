@@ -14,7 +14,8 @@ export const users = pgTable("users", {
   gender: text("gender"),
   phoneNumber: text("phone_number"),
   icDocument: text("ic_document"), // Base64 encoded IC document
-  verified: boolean("verified").default(false),
+  emailVerified: boolean("email_verified").default(false), // Email verification status
+  verified: boolean("verified").default(false), // Admin verification status (for business creation)
   businessCount: integer("business_count").default(0),
   createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`),
   updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`),

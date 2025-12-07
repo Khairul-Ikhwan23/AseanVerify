@@ -12,8 +12,8 @@ export const signup = async (req: any, res: any) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Create user with verified=false
-    const user = await storage.createUser({ ...userData, verified: false } as any);
+    // Create user with emailVerified=false and verified=false
+    const user = await storage.createUser({ ...userData, emailVerified: false, verified: false } as any);
 
     // Create verification token
     const raw = generateRawToken(32);
@@ -49,7 +49,8 @@ export const login = async (req: any, res: any) => {
     if (!user || user.password !== loginData.password) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-    if (!user.verified) {
+    // Check email verification status (email_verified field)
+    if (!user.emailVerified) {
       return res.status(403).json({ message: "Please verify your email before logging in." });
     }
     return res.json({ user: { id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email } });
@@ -118,7 +119,8 @@ export const resendVerification = async (req: any, res: any) => {
     const email = (req.body?.email || "").toString();
     if (!email) return res.status(200).json({ message: "If the account exists, a verification email will be sent." });
     const user = await storage.getUserByEmail(email);
-    if (!user || user.verified) {
+    // Check email verification status (email_verified field)
+    if (!user || user.emailVerified) {
       return res.status(200).json({ message: "If the account exists, a verification email will be sent." });
     }
     // Issue new token (do not disclose account state)

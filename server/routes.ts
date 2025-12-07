@@ -322,7 +322,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
-      // Enhanced verification check: User must be verified AND have complete profile
+      // Enhanced verification check: User must be email verified AND admin verified AND have complete profile
+      if (!user.emailVerified) {
+        return res.status(403).json({ 
+          message: "Please verify your email first. Check your inbox for the verification link.",
+          error: "EMAIL_NOT_VERIFIED"
+        });
+      }
+      
       if (!user.verified) {
         // Check profile completion percentage
         const requiredFields = [
@@ -708,8 +715,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Update user verification status
-      const updatedUser = await storage.updateUserVerification(userId, verified);
+      // Update user admin verification status (not email verification)
+      const updatedUser = await storage.updateUserAdminVerification(userId, verified);
       
       if (!updatedUser) {
         return res.status(500).json({ message: "Failed to update user verification status" });
@@ -1059,9 +1066,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { userId } = req.params;
       const { verified } = req.body;
       
-      console.log('Admin API: Updating user verification status:', userId, 'verified:', verified);
+      console.log('Admin API: Updating user admin verification status:', userId, 'verified:', verified);
       
-      const user = await storage.updateUserVerification(userId, verified);
+      const user = await storage.updateUserAdminVerification(userId, verified);
       
       if (!user) {
         return res.status(404).json({ message: "User not found" });

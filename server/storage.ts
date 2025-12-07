@@ -12,7 +12,8 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(userId: string, updates: Partial<InsertUser>): Promise<User | undefined>;
-  updateUserVerification(userId: string, verified: boolean): Promise<User | undefined>;
+  updateUserVerification(userId: string, verified: boolean): Promise<User | undefined>; // Updates email_verified
+  updateUserAdminVerification(userId: string, verified: boolean): Promise<User | undefined>; // Updates verified (admin)
   deleteUser(userId: string): Promise<boolean>;
   getBusinessProfile(userId: string): Promise<BusinessProfile | undefined>;
   getBusinessProfileById(businessId: string): Promise<BusinessProfile | undefined>;
@@ -261,7 +262,20 @@ export class PostgresStorage implements IStorage {
   }
 
   async updateUserVerification(userId: string, verified: boolean): Promise<User | undefined> {
-    console.log('Storage: Updating user verification:', userId, 'verified:', verified);
+    console.log('Storage: Updating user email verification:', userId, 'emailVerified:', verified);
+    
+    const result = await this.db
+      .update(users)
+      .set({ emailVerified: verified })
+      .where(eq(users.id, userId))
+      .returning();
+    
+    console.log('Storage: Updated user email verification result:', result[0]);
+    return result[0];
+  }
+
+  async updateUserAdminVerification(userId: string, verified: boolean): Promise<User | undefined> {
+    console.log('Storage: Updating user admin verification:', userId, 'verified:', verified);
     
     const result = await this.db
       .update(users)
@@ -269,7 +283,7 @@ export class PostgresStorage implements IStorage {
       .where(eq(users.id, userId))
       .returning();
     
-    console.log('Storage: Updated user verification result:', result[0]);
+    console.log('Storage: Updated user admin verification result:', result[0]);
     return result[0];
   }
 
