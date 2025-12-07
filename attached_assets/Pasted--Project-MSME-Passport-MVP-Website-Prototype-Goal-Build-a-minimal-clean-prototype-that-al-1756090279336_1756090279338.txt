@@ -1,0 +1,68 @@
+
+
+Project: MSME Passport MVP (Website Prototype)
+
+Goal: Build a minimal, clean prototype that allows businesses to sign up, log in, complete their profile, and view a locked/unlocked “passport” (digital business card with QR).
+
+---
+
+Pages Needed
+
+
+
+Login Page
+ 
+   * Business email + password fields for login.
+   * Create Account button → goes to sign-up form.
+   * Mobile responsive, ASEAN-inspired color accents (blue, yellow, green, red).
+   * No extra explainer text or sections.
+   * Link to “Create Account” if user doesn’t have one.
+   * Hero section with MSME Passport logo + tagline (centered, bold, minimal).
+  
+
+Create Account Page
+
+   * Business Name, Email, Password fields.
+   * Submit button → mock success → redirect to Dashboard.
+
+Dashboard (after login)
+
+   * Welcome banner: “Welcome, \[Business Name]”.
+   * Passport card area:
+
+     * If profile is incomplete → show locked passport card with message: “Complete your profile to unlock your MSME Passport.”
+     * If profile is complete → show unlocked passport card with:
+
+       * Business name, logo placeholder, tagline.
+       * Unique QR code (mock/static for now).
+   * Profile completion reminder (mock button: “Complete Profile”).
+
+Passport Page (unlocked state)
+
+   * Business details displayed in a card format.
+   * Customizable fields: Address, Contact, Website, Category.
+   * QR code displayed prominently (links to this page).
+   * Clean, ASEAN-style minimalist layout.
+
+Key Features (MVP)
+
+* Account Creation/Login flow (mock only, no backend auth yet).
+* Locked/Unlocked Passport states (UI toggle).
+* Business Card/Passport with QR Code (static for demo).
+* Mobile-responsive design.
+* Private access only (members-only after login).
+
+
+Technology Stack
+
+* Frontend: HTML, CSS, JavaScript
+* Optional: Tailwind CSS or Bootstrap for faster UI layout
+* Deployment: Runnable inside Replit’s HTML/CSS/JS template
+* Database (for later, not now): PostgreSQL
+
+ Additional Notes
+
+* Prioritize readability & ease of use.
+* Minimal, clean UI — no clutter.
+* Use ASEAN-inspired colors & SVG accents.
+* Focus only on MVP visuals, no backend integration yet.

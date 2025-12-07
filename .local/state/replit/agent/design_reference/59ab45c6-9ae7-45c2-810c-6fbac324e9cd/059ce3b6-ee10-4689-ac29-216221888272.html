@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSME Passport - Digital Business Identity</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'asean-blue': '#1E40AF',
+                        'asean-yellow': '#F59E0B',
+                        'asean-green': '#059669',
+                        'asean-red': '#DC2626',
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="font-inter bg-slate-50 min-h-screen">
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-sm border-b border-slate-200" id="navbar" style="display: none;">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <h1 class="text-xl font-bold text-asean-blue">MSME Passport</h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="showDashboard()" class="text-slate-600 hover:text-asean-blue transition-colors">Dashboard</button>
+                    <button onclick="logout()" class="bg-asean-red text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Page -->
+    <div id="loginPage" class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <div class="text-center">
+                <h1 class="text-4xl font-bold text-asean-blue mb-2">MSME Passport</h1>
+                <p class="text-lg text-slate-600">Your Digital Business Identity</p>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-2xl font-semibold text-slate-900 mb-6 text-center">Welcome Back</h2>
+                <form onsubmit="handleLogin(event)" class="space-y-6">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-slate-700 mb-2">Business Email</label>
+                        <input type="email" id="email" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-asean-blue focus:border-asean-blue transition-colors">
+                    </div>
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-slate-700 mb-2">Password</label>
+                        <input type="password" id="password" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-asean-blue focus:border-asean-blue transition-colors">
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-asean-blue to-blue-600 text-white py-2 px-4 rounded-md hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-105 font-medium">
+                        Sign In
+                    </button>
+                </form>
+                <div class="mt-6 text-center">
+                    <p class="text-slate-600">Don't have an account? 
+                        <button onclick="showSignup()" class="text-asean-blue hover:text-blue-700 font-medium">Create Account</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Page -->
+    <div id="signupPage" class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" style="display: none;">
+        <div class="max-w-md w-full space-y-8">
+            <div class="text-center">
+                <h1 class="text-4xl font-bold text-asean-blue mb-2">MSME Passport</h1>
+                <p class="text-lg text-slate-600">Create Your Digital Business Identity</p>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-2xl font-semibold text-slate-900 mb-6 text-center">Create Account</h2>
+                <form onsubmit="handleSignup(event)" class="space-y-6">
+                    <div>
+                        <label for="businessName" class="block text-sm font-medium text-slate-700 mb-2">Business Name</label>
+                        <input type="text" id="businessName" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-asean-blue focus:border-asean-blue transition-colors">
+                    </div>
+                    <div>
+                        <label for="signupEmail" class="block text-sm font-medium text-slate-700 mb-2">Business Email</label>
+                        <input type="email" id="signupEmail" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-asean-blue focus:border-asean-blue transition-colors">
+                    </div>
+                    <div>
+                        <label for="signupPassword" class="block text-sm font-medium text-slate-700 mb-2">Password</label>
+                        <input type="password" id="signupPassword" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-asean-blue focus:border-asean-blue transition-colors">
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-asean-green to-green-600 text-white py-2 px-4 rounded-md hover:from-green-700 hover:to-green-800 transition-all duration-200 transform hover:scale-105 font-medium">
+                        Create Account
+                    </button>
+                </form>
+                <div class="mt-6 text-center">
+                    <p class="text-slate-600">Already have an account? 
+                        <button onclick="showLogin()" class="text-asean-blue hover:text-blue-700 font-medium">Sign In</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboardPage" class="min-h-screen" style="display: none;">
+        <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="px-4 py-6 sm:px-0">
+                <!-- Welcome Section -->
+                <div class="bg-gradient-to-r from-asean-blue to-blue-600 rounded-lg shadow-lg p-6 mb-8">
+                    <h1 class="text-3xl font-bold text-white mb-2">Welcome, <span id="welcomeBusinessName">Business Name</span>!</h1>
+                    <p class="text-blue-100">Manage your digital business passport and grow your MSME network.</p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-asean-blue rounded-md flex items-center justify-center">
+                                    <span class="text-white font-bold">P</span>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-slate-600">Profile Status</p>
+                                <p class="text-lg font-semibold text-slate-900" id="profileStatus">Incomplete</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-asean-yellow rounded-md flex items-center justify-center">
+                                    <span class="text-white font-bold">Q</span>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-slate-600">QR Scans</p>
+                                <p class="text-lg font-semibold text-slate-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-asean-green rounded-md flex items-center justify-center">
+                                    <span class="text-white font-bold">N</span>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-slate-600">Network</p>
+                                <p class="text-lg font-semibold text-slate-900">0 connections</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Passport Card Section -->
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h2 class="text-xl font-semibold text-slate-900 mb-4">Your MSME Passport</h2>
+                        
+                        <!-- Locked State -->
+                        <div id="lockedPassport" class="text-center py-8">
+                            <div class="w-24 h-24 bg-slate-200 rounded-full mx-auto mb-4 flex items-center justify-center">
+                                <svg class="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-medium text-slate-900 mb-2">Passport Locked</h3>
+                            <p class="text-slate-600 mb-4">Complete your profile to unlock your MSME Passport and QR code.</p>
+                            <button onclick="showProfileForm()" class="bg-asean-yellow text-white px-6 py-2 rounded-md hover:bg-yellow-600 transition-colors font-medium">
+                                Complete Profile
+                            </button>
+                        </div>
+
+                        <!-- Unlocked State -->
+                        <div id="unlockedPassport" style="display: none;" class="text-center">
+                            <div class="bg-gradient-to-r from-asean-blue to-blue-600 rounded-lg p-6 text-white mb-4">
+                                <h3 class="text-xl font-bold mb-2" id="passportBusinessName">Business Name</h3>
+                                <p class="text-blue-100" id="passportTagline">Your business tagline</p>
+                            </div>
+                            <div id="qrCodeContainer" class="mb-4"></div>
+                            <button onclick="showPassportPage()" class="bg-asean-green text-white px-6 py-2 rounded-md hover:bg-green-600 transition-colors font-medium">
+                                View Full Passport
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Profile Completion -->
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h2 class="text-xl font-semibold text-slate-900 mb-4">Profile Completion</h2>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-600">Basic Information</span>
+                                <span class="text-asean-green font-medium" id="basicInfoStatus">✓ Complete</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-600">Business Details</span>
+                                <span class="text-slate-400" id="businessDetailsStatus">⏳ Pending</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-600">Contact Information</span>
+                                <span class="text-slate-400" id="contactInfoStatus">⏳ Pending</span>
+                            </div>
+                            <div class="w-full bg-slate-200 rounded-full h-2 mt-4">
+                                <div class="bg-asean-blue h-2 rounded-full transition-all duration-300" style="width: 33%" id="progressBar"></div>
+                            </div>
+                            <p class="text-sm text-slate-600 text-center">33% Complete</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Form Page -->
+    <div id="profileFormPage" class="min-h-screen py-8" style="display: none;">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-slate-900 mb-6">Complete Your Business Profile</h2>
+                <form onsubmit="handleProfileSubmit(event)" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="businessAddress" class="block text-sm font-medium text-slate-700 mb-2">Business Address</label>
+                            <textarea id="businessAddress" rows="3" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-asean-blue focus:border-asean-blue transition-colors"></textarea>
+                        </div>
+                        <div>
+                            <label for="businessCategory" class="block text-sm font-medium text-slate-700 mb-2">Business Category</label>
+                            <select id="businessCategory" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-asean-blue focus:border-asean-blue transition-colors">
+                                <option>Manufacturing</option>
+                                <option>Services</option>
+                                <option>Trading</option>
+                                <option>Technology</option>
+                                <option>Food & Beverage</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="businessPhone" class="block text-sm font-medium text-slate-700 mb-2">Contact Phone</label>
+                            <input type="tel" id="businessPhone" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-asean-blue focus:border-asean-blue transition-colors">
+                        </div>
+                        <div>
+                            <label for="businessWebsite" class="block text-sm font-medium text-slate-700 mb-2">Website (Optional)</label>
+                            <input type="url" id="businessWebsite" placeholder="https://" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-asean-blue focus:border-asean-blue transition-colors">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="businessTagline" class="block text-sm font-medium text-slate-700 mb-2">Business Tagline</label>
+                            <input type="text" id="businessTagline" placeholder="A brief description of your business" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-asean-blue focus:border-asean-blue transition-colors">
+                        </div>
+                    </div>
+                    <div class="flex justify-between">
+                        <button type="button" onclick="showDashboard()" class="bg-slate-500 text-white px-6 py-2 rounded-md hover:bg-slate-600 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" class="bg-asean-green text-white px-6 py-2 rounded-md hover:bg-green-600 transition-colors font-medium">
+                            Save Profile
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Passport Page -->
+    <div id="passportPage" class="min-h-screen py-8" style="display: none;">
+        <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Business Card -->
+            <div class="bg-white rounded-xl shadow-2xl overflow-hidden mb-8">
+                <!-- Header with gradient -->
+                <div class="bg-gradient-to-r from-asean-blue via-blue-600 to-blue-700 px-8 py-12 text-white text-center">
+                    <!-- Professional business card backdrop -->
+                    <div class="w-24 h-24 bg-white/20 rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <span class="text-3xl font-bold" id="passportInitials">BN</span>
+                    </div>
+                    <h1 class="text-3xl font-bold mb-2" id="fullPassportBusinessName">Business Name</h1>
+                    <p class="text-blue-100 text-lg" id="fullPassportTagline">Your business tagline</p>
+                </div>
+
+                <!-- Business Details -->
+                <div class="p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div>
+                            <h3 class="font-semibold text-slate-900 mb-2">Contact Information</h3>
+                            <div class="space-y-2 text-slate-600">
+                                <p id="passportPhone">Phone: Not provided</p>
+                                <p id="passportWebsite">Website: Not provided</p>
+                                <p id="passportEmail">Email: business@example.com</p>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-slate-900 mb-2">Business Details</h3>
+                            <div class="space-y-2 text-slate-600">
+                                <p id="passportCategory">Category: Not specified</p>
+                                <p id="passportAddress">Address: Not provided</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- QR Code Section -->
+                    <div class="text-center py-6 border-t border-slate-200">
+                        <h3 class="font-semibold text-slate-900 mb-4">Scan to Connect</h3>
+                        <div id="fullQrCodeContainer" class="flex justify-center mb-4"></div>
+                        <p class="text-sm text-slate-500">Scan this QR code to save contact information</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="showDashboard()" class="bg-slate-500 text-white px-6 py-3 rounded-md hover:bg-slate-600 transition-colors font-medium">
+                    Back to Dashboard
+                </button>
+                <button onclick="sharePassport()" class="bg-asean-blue text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors font-medium">
+                    Share Passport
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // TODO: Implement real authentication with backend API
+        // TODO: Implement real QR code functionality with proper URL generation
+        // TODO: Add form validation and error handling
+        // TODO: Implement file upload for business logo
+        // TODO: Add data persistence with proper database integration
+
+        (() => {
+            // Application state management
+            let currentUser = null;
+            let userProfile = null;
+
+            // Initialize app
+            function init() {
+                const savedUser = localStorage.getItem('currentUser');
+                if (savedUser) {
+                    currentUser = JSON.parse(savedUser);
+                    userProfile = JSON.parse(localStorage.getItem('userProfile')) || {};
+                    showDashboard();
+                } else {
+                    showLogin();
+                }
+            }
+
+            // Navigation functions
+            function hideAllPages() {
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('signupPage').style.display = 'none';
+                document.getElementById('dashboardPage').style.display = 'none';
+                document.getElementById('profileFormPage').style.display = 'none';
+                document.getElementById('passportPage').style.display = 'none';
+                document.getElementById('navbar').style.display = 'none';
+            }
+
+            window.showLogin = function() {
+                hideAllPages();
+                document.getElementById('loginPage').style.display = 'block';
+            };
+
+            window.showSignup = function() {
+                hideAllPages();
+                document.getElementById('signupPage').style.display = 'block';
+            };
+
+            window.showDashboard = function() {
+                hideAllPages();
+                document.getElementById('dashboardPage').style.display = 'block';
+                document.getElementById('navbar').style.display = 'block';
+                updateDashboard();
+            };
+
+            window.showProfileForm = function() {
+                hideAllPages();
+                document.getElementById('profileFormPage').style.display = 'block';
+                document.getElementById('navbar').style.display = 'block';
+                loadProfileForm();
+            };
+
+            window.showPassportPage = function() {
+                hideAllPages();
+                document.getElementById('passportPage').style.display = 'block';
+                document.getElementById('navbar').style.display = 'block';
+                updatePassportPage();
+            };
+
+            // Authentication functions
+            window.handleLogin = function(event) {
+                event.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                // Mock authentication
+                currentUser = { email, businessName: 'Demo Business' };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                showDashboard();
+            };
+
+            window.handleSignup = function(event) {
+                event.preventDefault();
+                const businessName = document.getElementById('businessName').value;
+                const email = document.getElementById('signupEmail').value;
+                const password = document.getElementById('signupPassword').value;
+                
+                // Mock registration
+                currentUser = { email, businessName };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                showDashboard();
+            };
+
+            window.logout = function() {
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('userProfile');
+                currentUser = null;
+                userProfile = null;
+                showLogin();
+            };
+
+            // Profile management
+            window.handleProfileSubmit = function(event) {
+                event.preventDefault();
+                
+                userProfile = {
+                    address: document.getElementById('businessAddress').value,
+                    category: document.getElementById('businessCategory').value,
+                    phone: document.getElementById('businessPhone').value,
+                    website: document.getElementById('businessWebsite').value,
+                    tagline: document.getElementById('businessTagline').value,
+                    completed: true
+                };
+                
+                localStorage.setItem('userProfile', JSON.stringify(userProfile));
+                showDashboard();
+            };
+
+            function loadProfileForm() {
+                if (userProfile) {
+                    document.getElementById('businessAddress').value = userProfile.address || '';
+                    document.getElementById('businessCategory').value = userProfile.category || 'Manufacturing';
+                    document.getElementById('businessPhone').value = userProfile.phone || '';
+                    document.getElementById('businessWebsite').value = userProfile.website || '';
+                    document.getElementById('businessTagline').value = userProfile.tagline || '';
+                }
+            }
+
+            function updateDashboard() {
+                if (!currentUser) return;
+                
+                document.getElementById('welcomeBusinessName').textContent = currentUser.businessName;
+                
+                const isProfileComplete = userProfile && userProfile.completed;
+                
+                if (isProfileComplete) {
+                    document.getElementById('lockedPassport').style.display = 'none';
+                    document.getElementById('unlockedPassport').style.display = 'block';
+                    document.getElementById('profileStatus').textContent = 'Complete';
+                    document.getElementById('passportBusinessName').textContent = currentUser.businessName;
+                    document.getElementById('passportTagline').textContent = userProfile.tagline || 'Your business tagline';
+                    document.getElementById('progressBar').style.width = '100%';
+                    document.querySelector('#progressBar').nextElementSibling.textContent = '100% Complete';
+                    
+                    // Update status indicators
+                    document.getElementById('businessDetailsStatus').innerHTML = '✓ Complete';
+                    document.getElementById('businessDetailsStatus').className = 'text-asean-green font-medium';
+                    document.getElementById('contactInfoStatus').innerHTML = '✓ Complete';
+                    document.getElementById('contactInfoStatus').className = 'text-asean-green font-medium';
+                    
+                    generateQRCode();
+                } else {
+                    document.getElementById('lockedPassport').style.display = 'block';
+                    document.getElementById('unlockedPassport').style.display = 'none';
+                    document.getElementById('profileStatus').textContent = 'Incomplete';
+                }
+            }
+
+            function generateQRCode() {
+                const qrContainer = document.getElementById('qrCodeContainer');
+                qrContainer.innerHTML = '';
+                
+                if (typeof QRCode !== 'undefined') {
+                    const qrCode = new QRCode(qrContainer, {
+                        text: `https://msmepassport.com/profile/${currentUser.email}`,
+                        width: 128,
+                        height: 128,
+                        colorDark: "#1E40AF",
+                        colorLight: "#ffffff",
+                    });
+                }
+            }
+
+            function updatePassportPage() {
+                if (!currentUser || !userProfile) return;
+                
+                const initials = currentUser.businessName.split(' ').map(word => word[0]).join('').toUpperCase();
+                document.getElementById('passportInitials').textContent = initials;
+                document.getElementById('fullPassportBusinessName').textContent = currentUser.businessName;
+                document.getElementById('fullPassportTagline').textContent = userProfile.tagline || 'Your business tagline';
+                document.getElementById('passportPhone').textContent = `Phone: ${userProfile.phone || 'Not provided'}`;
+                document.getElementById('passportWebsite').textContent = `Website: ${userProfile.website || 'Not provided'}`;
+                document.getElementById('passportEmail').textContent = `Email: ${currentUser.email}`;
+                document.getElementById('passportCategory').textContent = `Category: ${userProfile.category || 'Not specified'}`;
+                document.getElementById('passportAddress').textContent = `Address: ${userProfile.address || 'Not provided'}`;
+                
+                // Generate QR code for passport page
+                const fullQrContainer = document.getElementById('fullQrCodeContainer');
+                fullQrContainer.innerHTML = '';
+                
+                if (typeof QRCode !== 'undefined') {
+                    const qrCode = new QRCode(fullQrContainer, {
+                        text: `https://msmepassport.com/profile/${currentUser.email}`,
+                        width: 200,
+                        height: 200,
+                        colorDark: "#1E40AF",
+                        colorLight: "#ffffff",
+                    });
+                }
+            }
+
+            window.sharePassport = function() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: `${currentUser.businessName} - MSME Passport`,
+                        text: `Connect with ${currentUser.businessName}`,
+                        url: `https://msmepassport.com/profile/${currentUser.email}`
+                    });
+                } else {
+                    // Fallback for browsers that don't support Web Share API
+                    const url = `https://msmepassport.com/profile/${currentUser.email}`;
+                    navigator.clipboard.writeText(url).then(() => {
+                        alert('Passport link copied to clipboard!');
+                    });
+                }
+            };
+
+            // Initialize app when DOM is loaded
+            init();
+        })();
+    </script>
+</body>
+</html>
